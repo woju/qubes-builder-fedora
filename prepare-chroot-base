@@ -7,7 +7,7 @@ INSTALLDIR=$1
 DIST=$2
 
 set -e
-if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+if [ "${VERBOSE:-0}" -ge 2 -o "${DEBUG:-0}" -eq 1 ]; then
     set -x
 else
     YUM_OPTS="$YUM_OPTS -q"
@@ -23,14 +23,14 @@ fi
 if ! [ -f "${INSTALLDIR}/tmp/.prepared_base" ]; then
     echo "-> Initializing RPM database..."
     rpm --initdb --root=${INSTALLDIR}
-    rpm --import --root=${INSTALLDIR} ${PLUGIN_DIR}/keys/RPM-GPG-KEY-fedora-${DIST/fc/}-primary
+    rpm --import --root=${INSTALLDIR} ${PLUGIN_DIR}/keys/RPM-GPG-KEY-fedora-${DIST#fc}-primary
 
     echo "-> Retreiving core RPM packages..."
     INITIAL_PACKAGES="filesystem setup fedora-release"
 
     mkdir -p "${CACHEDIR}/base_rpms"
     $YUM --disablerepo=\* --enablerepo=fedora -y --installroot="${INSTALLDIR}" \
-        --releasever=${DIST/fc/} install \
+        --releasever=${DIST#fc} install \
         --downloadonly --downloaddir="${CACHEDIR}/base_rpms" ${INITIAL_PACKAGES}
 
     for file in ${CACHEDIR}/base_rpms/*; do
