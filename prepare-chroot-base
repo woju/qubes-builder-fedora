@@ -18,7 +18,7 @@ DOWNLOADDIR="${CACHEDIR}/base_rpms"
 YUM="yum --downloaddir=${DOWNLOADDIR} install"
 if type yumdownloader >/dev/null 2>/dev/null; then
     # debian does not have --downloadonly plugin
-    YUM="yumdownloader --destdir=${DOWNLOADDIR}"
+    YUM="yumdownloader --resolve --destdir=${DOWNLOADDIR}"
 elif type yum-deprecated >/dev/null 2>/dev/null; then
     # DNF does not support --downloaddir option (RHBZ#1279001), so fallback to
     # yum-deprecated for now
@@ -32,7 +32,7 @@ if ! [ -f "${INSTALLDIR}/tmp/.prepared_base" ]; then
         ${PLUGIN_DIR}/keys/RPM-GPG-KEY-fedora-${DIST#fc}-primary
 
     echo "-> Retreiving core RPM packages..."
-    INITIAL_PACKAGES="filesystem setup fedora-release"
+    INITIAL_PACKAGES="filesystem setup fedora-release bash rpm"
 
     mkdir -p "${DOWNLOADDIR}"
     $YUM --config "${PLUGIN_DIR}"/yum-bootstrap.conf --assumeyes \
